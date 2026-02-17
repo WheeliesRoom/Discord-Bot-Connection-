@@ -1,0 +1,13 @@
+{
+  "name": "discord-bot-server",
+  "version": "1.0.0",
+  "description": "Discord bot webhook bridge for n8n",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "discord.js": "^14.14.1"
+  }
+}
