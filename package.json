@@ -1,13 +1,26 @@
 {
-  "name": "discord-bot-server",
+  "name": "discord-bot-connection-",
   "version": "1.0.0",
-  "description": "Discord bot webhook bridge for n8n",
+  "description": "Used to connect the quantity workflows on N8N",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WheeliesRoom/Discord-Bot-Connection-.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/WheeliesRoom/Discord-Bot-Connection-/issues"
+  },
+  "homepage": "https://github.com/WheeliesRoom/Discord-Bot-Connection-#readme",
   "dependencies": {
-    "axios": "^1.6.0",
-    "discord.js": "^14.14.1"
+    "axios": "^1.13.5",
+    "discord.js": "^14.25.1",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1"
   }
 }
