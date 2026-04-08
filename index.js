@@ -32,42 +32,66 @@ client.once("ready", () => {
 
 client.on("messageCreate", async(message) => {
     try {
-        // 1. Ignore messages from bots
         if (message.author.bot) return;
 
         const content = message.content.trim();
 
-        // ✅ NEW: Allow integer + float values
+        // ✅ Allow int + float
         const num = parseFloat(content);
         if (isNaN(num)) {
-            console.log("Invalid input (not a number):", content);
+            console.log("Invalid input:", content);
             return;
         }
 
         let repliedToContent = null;
 
-        // 3. Logic to fetch the message being replied to
+        // ✅ PRIORITY 1: If user replied properly
         if (message.reference && message.reference.messageId) {
             try {
                 const repliedToMessage = await message.channel.messages.fetch(message.reference.messageId);
                 repliedToContent = repliedToMessage.content;
-            } catch (fetchError) {
-                console.error("Could not fetch the replied-to message:", fetchError.message);
+                console.log("✅ Got reply reference");
+            } catch (err) {
+                console.log("⚠️ Failed to fetch reply:", err.message);
             }
         }
 
-        // 4. Send the combined data to n8n Workflow
+        // ✅ PRIORITY 2: Fallback → get last bot message
+        if (!repliedToContent) {
+            try {
+                const messages = await message.channel.messages.fetch({ limit: 5 });
+
+                const lastBotMessage = messages.find(msg => msg.author.bot);
+
+                if (lastBotMessage) {
+                    repliedToContent = lastBotMessage.content;
+                    console.log("✅ Fallback: using last bot message");
+                } else {
+                    console.log("❌ No bot message found in history");
+                }
+            } catch (err) {
+                console.log("❌ Error fetching history:", err.message);
+            }
+        }
+
+        // 🚨 FINAL SAFETY
+        if (!repliedToContent) {
+            console.log("❌ No context found, skipping");
+            return;
+        }
+
+        // 🔥 Send to n8n
         await axios.post(N8N_WEBHOOK_URL, {
-            quantity: content, // send as-is, n8n will round it
+            quantity: content,
             replied_to_content: repliedToContent,
             author: message.author.username,
             raw: message
         });
 
-        console.log(`Sent quantity ${content} to n8n`);
+        console.log(`✅ Sent quantity ${content} with context`);
 
     } catch (error) {
-        console.error("Error sending to n8n:", error.message);
+        console.error("❌ Error:", error.message);
     }
 });
 
