@@ -37,8 +37,12 @@ client.on("messageCreate", async(message) => {
 
         const content = message.content.trim();
 
-        // 2. Only proceed if the message is purely a number (the quantity)
-        if (!/^\d+$/.test(content)) return;
+        // ✅ NEW: Allow integer + float values
+        const num = parseFloat(content);
+        if (isNaN(num)) {
+            console.log("Invalid input (not a number):", content);
+            return;
+        }
 
         let repliedToContent = null;
 
@@ -52,15 +56,15 @@ client.on("messageCreate", async(message) => {
             }
         }
 
-        // 4. Send the combined data to n8n Workflow 2
+        // 4. Send the combined data to n8n Workflow
         await axios.post(N8N_WEBHOOK_URL, {
-            quantity: content, // The number the manager typed
-            replied_to_content: repliedToContent, // The bot's question (contains STOCKTAKE:ID)
-            author: message.author.username, // Who sent the reply
-            raw: message // The full message object for backup
+            quantity: content, // send as-is, n8n will round it
+            replied_to_content: repliedToContent,
+            author: message.author.username,
+            raw: message
         });
 
-        console.log(`Sent quantity ${content} and reference text to n8n`);
+        console.log(`Sent quantity ${content} to n8n`);
 
     } catch (error) {
         console.error("Error sending to n8n:", error.message);
